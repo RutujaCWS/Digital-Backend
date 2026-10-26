@@ -4,10 +4,21 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-app.use(cors());
+
+
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    // 'https://digital-frontend-xxx.vercel.app'  // ← फ्रंटएंड deploy झाल्यावर उघडा आणि खऱ्या URL ने बदला
+  ],
+  credentials: true
+}));
+
+
 app.use(express.json());
 require('./config/cloudinary');
-const { startWhatsApp } = require('./services/whatsappService');
+// const { startWhatsApp } = require('./services/whatsappService');
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/products', require('./routes/productRoutes'));
@@ -24,9 +35,10 @@ app.use('/api/contact', require('./routes/contactRoutes'));
 app.use('/api/special-offers', require('./routes/specialOfferRoutes'));
 app.use('/api/gallery', require('./routes/galleryRoutes'));
 app.use('/api/reviews', require('./routes/reviewRoutes'));
-app.use('/api/reviews', require('./routes/reviewRoutes'));
-app.use('/api/whatsapp', require('./routes/whatsappRoutes'));
+// app.use('/api/reviews', require('./routes/reviewRoutes'));
+// app.use('/api/whatsapp', require('./routes/whatsappRoutes'));
 app.use('/api/notifications', require('./routes/notifications'));
+
 
 app.get('/', (req, res) => {
   res.json({
@@ -44,7 +56,7 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server on port ${PORT}`);
 
-  startWhatsApp().catch(err => {
-    console.error('WhatsApp startup failed:', err.message);
-  });
+  // startWhatsApp().catch(err => {
+  //   console.error('WhatsApp startup failed:', err.message);
+  // });
 });
