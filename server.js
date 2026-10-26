@@ -10,7 +10,7 @@ app.use(cors({
   origin: [
     'http://localhost:5173',
     'http://localhost:3000',
-    // 'https://digital-frontend-xxx.vercel.app'  // ← फ्रंटएंड deploy झाल्यावर उघडा आणि खऱ्या URL ने बदला
+    'https://digitalworldkopargaon.vercel.app'
   ],
   credentials: true
 }));
