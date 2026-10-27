@@ -1,0 +1,17 @@
+2026/10/27-15:14:50.381 3cc Creating DB C:\Users\User\Desktop\DigitalWorld\backend\RemoteAuth-digital-world\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb since it was missing.
+2026/10/27-15:14:50.852 3cc Reusing MANIFEST C:\Users\User\Desktop\DigitalWorld\backend\RemoteAuth-digital-world\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2026/10/27-15:14:51.141 5c7c Level-0 table #5: started
+2026/10/27-15:14:51.301 5c7c Level-0 table #5: 5465 bytes OK
+2026/10/27-15:14:51.312 5c7c Delete type=0 #3
+2026/10/27-15:14:51.346 6cb4 Manual compaction at level-0 from '\x00\x01\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x02\x00\x00\x00' @ 0 : 0; will stop at (end)
+2026/10/27-15:14:51.356 6cb4 Level-0 table #7: started
+2026/10/27-15:14:51.392 6cb4 Level-0 table #7: 14996 bytes OK
+2026/10/27-15:14:51.399 6cb4 Delete type=0 #4
+2026/10/27-15:14:51.418 6cb4 Manual compaction at level-0 from '\x00\x02\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x03\x00\x00\x00' @ 0 : 0; will stop at (end)
+2026/10/27-15:14:51.418 6cb4 Manual compaction at level-1 from '\x00\x02\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x03\x00\x00\x00' @ 0 : 0; will stop at '\x00\x04\x04\x02\x01\x0b\x00W\x00A\x00U\x00n\x00k\x00n\x00o\x00w\x00n\x00I\x00D' @ 763 : 1
+2026/10/27-15:14:51.418 6cb4 Compacting 1@1 + 1@2 files
+2026/10/27-15:14:51.453 6cb4 Generated table #8@1: 564 keys, 11631 bytes
+2026/10/27-15:14:51.453 6cb4 Compacted 1@1 + 1@2 files => 11631 bytes
+2026/10/27-15:14:51.460 6cb4 compacted to: files[ 0 0 1 0 0 0 0 ]
+2026/10/27-15:14:51.460 6cb4 Delete type=2 #7
+2026/10/27-15:14:51.469 6cb4 Manual compaction at level-1 from '\x00\x04\x04\x02\x01\x0b\x00W\x00A\x00U\x00n\x00k\x00n\x00o\x00w\x00n\x00I\x00D' @ 763 : 1 .. '\x00\x03\x00\x00\x00' @ 0 : 0; will stop at (end)

@@ -11,8 +11,8 @@ const {
 
 router.post('/connect', auth, requireRole('admin'), async (req, res) => {
   try {
-    startWhatsApp();
-    res.json({ ok: true });
+    await startWhatsApp();
+    res.json({ ok: true, status: getStatus() });
   } catch (e) {
     res.status(500).json({ message: e.message });
   }

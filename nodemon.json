@@ -1,0 +1,10 @@
+
+{
+  "watch": ["."],
+  "ignore": [
+    ".wwebjs_auth/**",
+    "RemoteAuth-*.zip",
+    "node_modules/**"
+  ],
+  "ext": "js,json"
+}
