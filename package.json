@@ -8,7 +8,7 @@
     "dev": "nodemon server.js",
     "seed": "node seed.js",
     "seed:admin": "node seedAdmin.js",
-    "postinstall": "npx puppeteer browsers install chrome && patch-package"
+    "postinstall": "node node_modules/patch-package/index.js"
   },
   "keywords": [],
   "author": "",
