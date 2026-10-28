@@ -171,6 +171,7 @@ async function startWhatsApp() {
   });
 
   try {
+    console.log('Calling WhatsApp initialize...');
     await waClient.initialize();
   } catch (err) {
     console.error('WhatsApp initialize failed:', err.message);
