@@ -18,7 +18,7 @@ app.use(cors({
 
 app.use(express.json());
 require('./config/cloudinary');
-// const { startWhatsApp } = require('./services/whatsappService');
+const { startWhatsApp } = require('./services/whatsappService');
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/products', require('./routes/productRoutes'));
@@ -36,7 +36,7 @@ app.use('/api/special-offers', require('./routes/specialOfferRoutes'));
 app.use('/api/gallery', require('./routes/galleryRoutes'));
 app.use('/api/reviews', require('./routes/reviewRoutes'));
 // app.use('/api/reviews', require('./routes/reviewRoutes'));
-// app.use('/api/whatsapp', require('./routes/whatsappRoutes'));
+app.use('/api/whatsapp', require('./routes/whatsappRoutes'));
 app.use('/api/notifications', require('./routes/notifications'));
 
 
@@ -47,16 +47,24 @@ app.get('/', (req, res) => {
   });
 });
 
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ MongoDB Connected'))
-  .catch(err => console.log('❌ DB Error:', err));
-
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server on port ${PORT}`);
+async function startServer() {
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log('✅ MongoDB Connected');
 
-  // startWhatsApp().catch(err => {
-  //   console.error('WhatsApp startup failed:', err.message);
-  // });
-});
+    app.listen(PORT, () => {
+      console.log(`🚀 Server on port ${PORT}`);
+
+      startWhatsApp().catch(err => {
+        console.error('WhatsApp startup failed:', err.message);
+      });
+    });
+  } catch (err) {
+    console.error('❌ DB Error:', err.message);
+    process.exit(1);
+  }
+}
+
+startServer();

@@ -1,4 +1,6 @@
-const { Client, LocalAuth } = require('whatsapp-web.js');
+const { Client, RemoteAuth } = require('whatsapp-web.js');
+const { MongoStore } = require('wwebjs-mongo');
+const mongoose = require('mongoose');
 const qrcode = require('qrcode');
 const path = require('path');
 
@@ -9,11 +11,34 @@ let connectedNumber = null;
 let isStarting = false;
 let reconnectTimer = null;
 let manualLogout = false;
+let store = null;
 
-// Keep the saved session in a stable location.
-const SESSION_PATH = process.env.WWEBJS_AUTH_PATH
-  ? path.resolve(process.env.WWEBJS_AUTH_PATH)
-  : path.resolve(__dirname, '..', '.wwebjs_auth');
+class CustomRemoteAuth extends RemoteAuth {
+  async storeRemoteSession(options) {
+    try {
+      return await super.storeRemoteSession(options);
+    } catch (err) {
+      console.error(
+        'RemoteAuth session backup failed:',
+        err.code || '',
+        err.message
+      );
+
+      throw err;
+    }
+  }
+}
+
+// RemoteAuth साठी MongoStore एकदाच तयार करा
+function getStore() {
+  if (!store) {
+    store = new MongoStore({ 
+      mongoose, 
+      bucketName: 'whatsapp-session'
+    });
+  }
+  return store;
+}
 
 function clearReconnectTimer() {
   if (reconnectTimer) {
@@ -41,27 +66,35 @@ async function startWhatsApp() {
 
   if (client && connectionStatus === 'connected') return;
 
+  // mongoose कनेक्टेड नसेल तर RemoteAuth काम करणार नाही
+  if (mongoose.connection.readyState !== 1) {
+    console.log('WhatsApp start deferred: MongoDB not connected yet');
+    connectionStatus = 'disconnected';
+    scheduleReconnect();
+    return;
+  }
+
   clearReconnectTimer();
   manualLogout = false;
   isStarting = true;
   connectionStatus = 'initializing';
 
   const waClient = new Client({
-    authStrategy: new LocalAuth({
+    authStrategy: new CustomRemoteAuth({
+      store: getStore(),
       clientId: 'admin-whatsapp',
-      dataPath: SESSION_PATH
+      backupSyncIntervalMs: 86400000,
     }),
+  
     puppeteer: {
       headless: true,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
-        '--disable-extensions',
-        '--disable-gpu',
-        '--no-first-run'
-      ]
-    }
+        '--disable-blink-features=AutomationControlled',
+      ],
+    },
   });
 
   client = waClient;
@@ -89,6 +122,12 @@ async function startWhatsApp() {
     isStarting = false;
 
     console.log('WhatsApp connected:', connectedNumber);
+
+  
+  });
+
+  waClient.on('remote_session_saved', () => {
+    console.log('WhatsApp session saved to MongoDB');
   });
 
   waClient.on('auth_failure', msg => {
@@ -102,8 +141,6 @@ async function startWhatsApp() {
     isStarting = false;
     client = null;
 
-    // Do not repeatedly retry invalid credentials.
-    // Use Connect WhatsApp to initiate a fresh login.
     waClient.destroy().catch(() => {});
   });
 
@@ -122,8 +159,6 @@ async function startWhatsApp() {
     connectionStatus = 'disconnected';
     isStarting = false;
 
-    // LOGOUT requires checking/re-authenticating the session.
-    // Avoid an automatic reconnect loop.
     if (String(reason).toUpperCase() === 'LOGOUT') {
       console.error(
         'WhatsApp session logged out. Connect again and scan a new QR if needed.'
@@ -154,8 +189,6 @@ async function startWhatsApp() {
 
     if (!manualLogout) scheduleReconnect();
   } finally {
-    // Keep isStarting true until ready/failed/disconnected,
-    // unless initialization has already failed.
     if (client !== waClient && isStarting) {
       isStarting = false;
     }
