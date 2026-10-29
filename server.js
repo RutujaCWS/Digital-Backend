@@ -19,6 +19,39 @@ app.use(cors({
 app.use(express.json());
 require('./config/cloudinary');
 // const { startWhatsApp } = require('./services/whatsappService');
+
+
+const connectDB = async () => {
+  if (mongoose.connection.readyState === 1) {
+    return;
+  }
+
+  if (!process.env.MONGO_URI) {
+    throw new Error('MONGO_URI is missing');
+  }
+
+  await mongoose.connect(process.env.MONGO_URI, {
+    serverSelectionTimeoutMS: 15000,
+    connectTimeoutMS: 15000,
+  });
+};
+
+// Connect to MongoDB before API routes
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error('MongoDB connection error:', error.message);
+
+    res.status(503).json({
+      success: false,
+      message: 'Database temporarily unavailable',
+    });
+  }
+});
+
+
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/products', require('./routes/productRoutes'));
@@ -47,16 +80,36 @@ app.get('/', (req, res) => {
   });
 });
 
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ MongoDB Connected'))
-  .catch(err => console.log('❌ DB Error:', err));
+// mongoose.connect(process.env.MONGO_URI)
+//   .then(() => console.log('✅ MongoDB Connected'))
+//   .catch(err => console.log('❌ DB Error:', err));
+
+// const PORT = process.env.PORT || 5000;
+
+// app.listen(PORT, () => {
+//   console.log(`🚀 Server on port ${PORT}`);
+
+//   // startWhatsApp().catch(err => {
+//   //   console.error('WhatsApp startup failed:', err.message);
+//   // });
+// });
+
+
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server on port ${PORT}`);
+if (process.env.VERCEL) {
+  module.exports = app;
+} else {
+  connectDB()
+    .then(() => {
+      console.log('✅ MongoDB Connected');
 
-  // startWhatsApp().catch(err => {
-  //   console.error('WhatsApp startup failed:', err.message);
-  // });
-});
+      app.listen(PORT, () => {
+        console.log(`🚀 Server on port ${PORT}`);
+      });
+    })
+    .catch((error) => {
+      console.error('❌ DB Error:', error.message);
+    });
+}
